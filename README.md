@@ -1,4 +1,4 @@
-# GPU Architecture
+# tiny GPU
 
 A minimal GPU implementation in SystemVerilog designed for educational exploration of hardware-level parallelism and GPGPU architectures.
 
@@ -37,9 +37,14 @@ Understanding the internal architecture of modern Graphics Processing Units (GPU
 ## Project Scope
 
 > [!IMPORTANT]
-> **tiny-gpu** is a pedagogical hardware implementation focused on the core principles of General-Purpose GPU (GPGPU) architectures and ML accelerators. It emphasizes clarity and educational value over graphics-specific legacy hardware.
+>
+> **tiny-gpu** is a minimal GPU implementation optimized for learning about how GPUs work from the ground up.
+>
+> Specifically, with the trend toward general-purpose GPUs (GPGPUs) and ML-accelerators like Google's TPU, tiny-gpu focuses on highlighting the general principles of all of these architectures, rather than on the details of graphics-specific hardware.
 
-The implementation explores three critical dimensions of modern hardware accelerators:
+With this motivation in mind, we can simplify GPUs by cutting out the majority of complexity involved with building a production-grade graphics card, and focus on the core elements that are critical to all of these modern hardware accelerators.
+
+This project is primarily focused on exploring:
 
 1. **Hardware Architecture**: Decomposition of GPU units, including dispatchers, compute cores, and memory controllers.
 2. **Parallel Execution Models**: Hardware implementation of the Single Instruction, Multiple Data (SIMD) paradigm.
@@ -409,4 +414,4 @@ Contributions aimed at improving the architectural fidelity or performance of `t
 
 ---
 
-**Author:** [Adam Majmudar](https://twitter.com/majmudaradam)
+**Author:** [Rickarya Das](https://github.com/ridash2005)
