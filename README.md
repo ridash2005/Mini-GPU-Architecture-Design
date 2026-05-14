@@ -1,4 +1,4 @@
-# GPU Architecture
+# Mini GPU Architecture
 
 A minimal GPU implementation in SystemVerilog designed for educational exploration of hardware-level parallelism and GPGPU architectures.
 
