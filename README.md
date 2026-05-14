@@ -1,4 +1,4 @@
-# tiny GPU
+# GPU Architecture
 
 A minimal GPU implementation in SystemVerilog designed for educational exploration of hardware-level parallelism and GPGPU architectures.
 
@@ -32,15 +32,15 @@ This repository contains a documented SystemVerilog implementation of a GPU, fea
 
 Understanding the internal architecture of modern Graphics Processing Units (GPUs) is often hindered by the proprietary nature of commercial hardware. While high-level GPU programming resources are abundant, low-level hardware implementation details are scarce. 
 
-`tiny-gpu` provides a minimal, documented GPU implementation designed to bridge this gap, focusing on architectural fundamentals rather than production complexity.
+`mini-gpu` provides a minimal, documented GPU implementation designed to bridge this gap, focusing on architectural fundamentals rather than production complexity.
 
 ## Project Scope
 
 > [!IMPORTANT]
 >
-> **tiny-gpu** is a minimal GPU implementation optimized for learning about how GPUs work from the ground up.
+> **mini-gpu** is a minimal GPU implementation optimized for learning about how GPUs work from the ground up.
 >
-> Specifically, with the trend toward general-purpose GPUs (GPGPUs) and ML-accelerators like Google's TPU, tiny-gpu focuses on highlighting the general principles of all of these architectures, rather than on the details of graphics-specific hardware.
+> Specifically, with the trend toward general-purpose GPUs (GPGPUs) and ML-accelerators like Google's TPU, mini-gpu focuses on highlighting the general principles of all of these architectures, rather than on the details of graphics-specific hardware.
 
 With this motivation in mind, we can simplify GPUs by cutting out the majority of complexity involved with building a production-grade graphics card, and focus on the core elements that are critical to all of these modern hardware accelerators.
 
@@ -61,7 +61,7 @@ Detailed discussions on advanced optimizations used in production-grade GPUs are
 
 ## GPU
 
-tiny-gpu is built to execute a single kernel at a time.
+mini-gpu is built to execute a single kernel at a time.
 
 In order to launch a kernel, we need to do the following:
 
@@ -98,12 +98,12 @@ The GPU is built to interface with an external global memory. Here, data memory 
 
 ### Global Memory
 
-tiny-gpu data memory has the following specifications:
+mini-gpu data memory has the following specifications:
 
 - 8 bit addressability (256 total rows of data memory)
 - 8 bit data (stores values of <256 for each row)
 
-tiny-gpu program memory has the following specifications:
+mini-gpu program memory has the following specifications:
 
 - 8 bit addressability (256 rows of program memory)
 - 16 bit data (each instruction is 16 bits as specified by the ISA)
@@ -132,7 +132,7 @@ In this simplified GPU, each core processed one **block** at a time, and for eac
 
 Each core has a single scheduler that manages the execution of threads.
 
-The tiny-gpu scheduler executes instructions for a single block to completion before picking up a new block, and it executes instructions for all threads in-sync and sequentially.
+The mini-gpu scheduler executes instructions for a single block to completion before picking up a new block, and it executes instructions for all threads in-sync and sequentially.
 
 In more advanced schedulers, techniques like **pipelining** are used to stream the execution of multiple instructions subsequent instructions to maximize resource utilization before previous instructions are fully complete. Additionally, **warp scheduling** can be use to execute multiple batches of threads within a block in parallel.
 
@@ -172,7 +172,7 @@ By default, the PC increments by 1 after every instruction.
 
 With the `BRnzp` instruction, the NZP register checks to see if the NZP register (set by a previous `CMP` instruction) matches some case - and if it does, it will branch to a specific line of program memory. _This is how loops and conditionals are implemented._
 
-Since threads are processed in parallel, tiny-gpu assumes that all threads "converge" to the same program counter after each instruction - which is a naive assumption for the sake of simplicity.
+Since threads are processed in parallel, mini-gpu assumes that all threads "converge" to the same program counter after each instruction - which is a naive assumption for the sake of simplicity.
 
 In real GPUs, individual threads can branch to different PCs, causing **branch divergence** where a group of threads threads initially being processed together has to split out into separate execution.
 
@@ -180,7 +180,7 @@ In real GPUs, individual threads can branch to different PCs, causing **branch d
 
 ![ISA](/docs/images/isa.png)
 
-tiny-gpu implements a simple 11 instruction ISA built to enable simple kernels for proof-of-concept like matrix addition & matrix multiplication (implementation further down on this page).
+mini-gpu implements a simple 11 instruction ISA built to enable simple kernels for proof-of-concept like matrix addition & matrix multiplication (implementation further down on this page).
 
 For these purposes, it supports the following instructions:
 
@@ -259,7 +259,7 @@ RET                            ; end of kernel
 
 ### Matrix Multiplication
 
-The matrix multiplication kernel multiplies two 2x2 matrices. It performs element wise calculation of the dot product of the relevant row and column and uses the `CMP` and `BRnzp` instructions to demonstrate branching within the threads (notably, all branches converge so this kernel works on the current tiny-gpu implementation).
+The matrix multiplication kernel multiplies two 2x2 matrices. It performs element wise calculation of the dot product of the relevant row and column and uses the `CMP` and `BRnzp` instructions to demonstrate branching within the threads (notably, all branches converge so this kernel works on the current mini-gpu implementation).
 
 `matmul.asm`
 
@@ -311,7 +311,7 @@ RET                            ; end of kernel
 
 # Simulation and Verification
 
-`tiny-gpu` includes a comprehensive simulation environment for verifying kernel execution.
+`mini-gpu` includes a comprehensive simulation environment for verifying kernel execution.
 
 ## Prerequisites
 
@@ -352,11 +352,11 @@ The generated traces provide visibility into the execution of every thread, faci
 
 # Advanced Functionality
 
-For the sake of simplicity, there were many additional features implemented in modern GPUs that heavily improve performance & functionality that tiny-gpu omits. We'll discuss some of those most critical features in this section.
+For the sake of simplicity, there were many additional features implemented in modern GPUs that heavily improve performance & functionality that mini-gpu omits. We'll discuss some of those most critical features in this section.
 
 ### Multi-layered Cache & Shared Memory
 
-In modern GPUs, multiple different levels of caches are used to minimize the amount of data that needs to get accessed from global memory. tiny-gpu implements only one cache layer between individual compute units requesting memory and the memory controllers which stores recent cached data.
+In modern GPUs, multiple different levels of caches are used to minimize the amount of data that needs to get accessed from global memory. mini-gpu implements only one cache layer between individual compute units requesting memory and the memory controllers which stores recent cached data.
 
 Implementing multi-layered caches allows frequently accessed data to be cached more locally to where it's being used (with some caches within individual compute cores), minimizing load times for this data.
 
@@ -372,7 +372,7 @@ Memory coalescing is used to analyzing queued memory requests and combine neighb
 
 ### Pipelining
 
-In the control flow for tiny-gpu, cores wait for one instruction to be executed on a group of threads before starting execution of the next instruction.
+In the control flow for mini-gpu, cores wait for one instruction to be executed on a group of threads before starting execution of the next instruction.
 
 Modern GPUs use **pipelining** to stream execution of multiple sequential instructions at once while ensuring that instructions with dependencies on each other still get executed sequentially.
 
@@ -386,7 +386,7 @@ Multiple warps can be executed on a single core simultaneously by executing inst
 
 ### Branch Divergence
 
-tiny-gpu assumes that all threads in a single batch end up on the same PC after each instruction, meaning that threads can be executed in parallel for their entire lifetime.
+mini-gpu assumes that all threads in a single batch end up on the same PC after each instruction, meaning that threads can be executed in parallel for their entire lifetime.
 
 In reality, individual threads could diverge from each other and branch to different lines based on their data. With different PCs, these threads would need to split into separate lines of execution, which requires managing diverging threads & paying attention to when threads converge again.
 
@@ -410,7 +410,7 @@ Current development objectives include:
 
 ## Contributions
 
-Contributions aimed at improving the architectural fidelity or performance of `tiny-gpu` are welcome. Please submit a Pull Request or open an issue to discuss proposed changes.
+Contributions aimed at improving the architectural fidelity or performance of `mini-gpu` are welcome. Please submit a Pull Request or open an issue to discuss proposed changes.
 
 ---
 
